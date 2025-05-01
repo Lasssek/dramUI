@@ -1,13 +1,14 @@
 #include "Button.hh"
 
 #include <stdexcept>
+#include <format>
 
-Button::Button(std::shared_ptr<ParentProvider> parent, 
-    int width, int height, 
-    std::string_view label,
-    int x, int y, 
-    bool centerText)
-    : m_label(label), m_centerText(centerText) {
+Button::Button(std::shared_ptr<IParentProvider> parent, 
+        int width, int height, 
+        std::wstring_view label,
+        int x, int y, 
+        bool centerText
+    ): m_label(label), m_centerText(centerText) {
         m_x = x;
         m_y = y;
 
@@ -50,20 +51,18 @@ void Button::Draw(ConsoleBuffer& buffer) {
     if (m_active)  color = m_activeColor;
 
     size_t labelLength = m_label.size();
+
     int offset = 0;
-
     if (m_centerText) offset = (m_width - labelLength) / 2;
+    const int borderOffset = (m_border != BorderType::None) ? 1 : 0;
 
-    for (size_t i = 0; i < m_width; ++i) {
-        char c = ' ';
+    std::pair<int, int> textOffset = DrawBorder(buffer);
+    const int textOffsetX = m_centerText ? (textOffset.first - labelLength) / 2 : borderOffset;
 
-        if (i >= offset && i < offset + labelLength) {
-            size_t labelIndex = i - offset;
+    for (size_t i = 0; i < labelLength; ++i) {
+        const int xPos = m_x + textOffsetX + i;
 
-            if (labelIndex < labelLength) c = m_label[labelIndex];
-        }
-
-        buffer.Draw(m_x + i, m_y, c, color);
+        buffer.Draw(xPos, m_y + borderOffset, m_label[i], color);
     }
 }
 
@@ -84,14 +83,20 @@ void Button::CalculateSize() {
 
     if (m_dynamicWidth  == Size::MatchParent) m_width  = m_parent->GetWidth()  - m_x;
     if (m_dynamicHeight == Size::MatchParent) m_height = m_parent->GetHeight() - m_y;
-    if (m_dynamicHeight == Size::MatchContent) {
+    if (m_dynamicHeight == Size::MatchContent && m_border == BorderType::None) {
         m_height = 1;
     }
-    if (m_dynamicWidth  == Size::MatchContent) m_width = m_label.size();
+    else if (m_dynamicHeight == Size::MatchContent && m_border != BorderType::None &&
+        m_height < 3) {
+       m_height = 3; 
+    }
+
+    const int borderOffset = (m_border != BorderType::None) ? 2 : 0;
+    if (m_dynamicWidth  == Size::MatchContent) m_width = m_label.size() + borderOffset;
 }
 
-void Button::SetLabel(std::string_view label) {
-    this->m_label = label;
+void Button::SetLabel(std::wstring_view label) {
+    m_label = label;
     CalculateSize();
 }
 

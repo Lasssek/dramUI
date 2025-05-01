@@ -1,89 +1,59 @@
 #pragma once
 
-#include "../UI/Scene/Scene.hh"
+#include "../UI/Scene/SceneFactory.hh"
 #include "../UI/Components/Button.hh"
 #include "../UI/Components/TextLabel.hh"
 #include "../UI/Layouts/DynamicLayout.hh"
 
+#include <thread>
 #include <format>
 
-class MainMenuScene : public Scene {
-public:
+class MainMenuScene : public SceneFactory<MainMenuScene> {
+private:
+    friend class SceneFactory<MainMenuScene>;
+
     MainMenuScene() = default;
 
-    void OnCreate() {
-        if (m_created) return;
-
-        auto mainLayout = std::make_shared<DynamicLayout>(
-            shared_from_this(),
+    void OnCreate() override {
+        auto layout = WidgetRegister::CreateWidget<DynamicLayout>(
+            "mainLayout",
             0, 0,
-            Size::MatchParent, Size::MatchParent,
-            2,
-            DynamicLayout::LayoutMode::Horizontal
+            Size::MatchParent, Size::MatchParent
         );
 
-        mainLayout->SetHorizontalAlignment(DynamicLayout::Alignment::Center);
-        mainLayout->SetVerticalAlignment(DynamicLayout::Alignment::Center);
+        layout->SetHorizontalAlignment(DynamicLayout::Alignment::Center);
 
-        for (int i = 0; i < 3; ++i) {
-            CreateLayoutRow(mainLayout, "Hejka", "Naklejka", "Cwel", "Jebany");
-        }
+        auto button = layout->CreateWidget<Button>(
+            "buttonSigma",
+            0, 0,
+            L"SkiBadi"
+        );
 
-        AddWidget(mainLayout);
+        button->SetDynamicSize(Size::MatchContent, Size::MatchContent);
 
-        mainLayout->UpdateHierarchy();
-        m_created = true;
+        auto textLabel = layout->CreateWidget<TextLabel>(
+            "labelSigma",
+            0, 0,
+            L"Label"
+        );
+        textLabel->SetDynamicSize(Size::MatchContent, Size::MatchContent);
+        textLabel->SetBorder(BorderType::Square);
+
+        button->SetOnClick([layout]() {
+            layout->RemoveWidget("labelSigma");
+        });
     }
-
+public:
     void Draw(ConsoleBuffer& buffer) override {
-        for (auto& widget : m_widgets) {
+        
+        for (auto& [_, widget] : m_widgets) {
             widget->Draw(buffer);
         }
     };
 
     void HandleEvent(Event& event) override {
-        for (auto& widget : m_widgets) {
+        for (auto& [_, widget] : m_widgets) {
             widget->HandleEvent(event);
         }
     };
-private:
-    void CreateLayoutRow(
-        std::shared_ptr<DynamicLayout> parent,
-        std::string_view firstText,
-        std::string_view secondText,
-        std::string_view thirdText,
-        std::string_view fourthText
-    ) {
-        auto layout = parent->CreateWidget<DynamicLayout>(
-            0, 0,
-            Size::MatchContent, Size::MatchContent,
-            1
-        );
-
-        auto text1 = layout->CreateWidget<TextLabel>(
-            0, 0,
-            firstText
-        );
-        text1->SetDynamicSize(Size::MatchContent, Size::MatchContent);
-
-        auto text2 = layout->CreateWidget<TextLabel>(
-            0, 0,
-            secondText
-        );
-        text2->SetDynamicSize(Size::MatchContent, Size::MatchContent);
-
-        auto text3 = layout->CreateWidget<TextLabel>(
-            0, 0,
-            thirdText
-        );
-        text3->SetDynamicSize(Size::MatchContent, Size::MatchContent);
-
-        auto text4 = layout->CreateWidget<TextLabel>(
-            0, 0,
-            fourthText
-        );
-        text4->SetDynamicSize(Size::MatchContent, Size::MatchContent);
-    }
-
-    bool m_created = false;
 };

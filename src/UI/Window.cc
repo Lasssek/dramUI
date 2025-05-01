@@ -4,7 +4,7 @@
 
 std::unique_ptr<Window> Window::m_instance = nullptr;
 
-Window::Window(short width, short height) : m_buffer(width, height), m_width(width), m_height(height) {};
+Window::Window(int width, int height) : m_buffer(width, height), m_width(width), m_height(height) {};
 Window::Window() : m_buffer() {
     Vector2D size = m_buffer.GetSize();
 
@@ -90,7 +90,7 @@ Window* Window::GetInstance() {
     return m_instance.get();
 }
 
-void Window::Initialize(short width, short height) {
+void Window::Initialize(int width, int height) {
     if (!m_instance) {
         m_instance = std::unique_ptr<Window>(new Window(width, height));
     }

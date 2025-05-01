@@ -14,7 +14,7 @@ public:
         Vertical   = 1,
     };
 
-    DynamicLayout(std::shared_ptr<ParentProvider> parent, 
+    DynamicLayout(std::shared_ptr<IParentProvider> parent, 
         int x, int y, 
         Size dynamicWidth, Size dynamicHeight, 
         int gap = 0, LayoutMode mode = LayoutMode::Vertical);

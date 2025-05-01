@@ -4,10 +4,12 @@
 
 class StaticLayout : public Layout {
 public:
-    StaticLayout();
-    void PositionWidgets();
-    void CalculateSize();
-    void UpdateHierarchy();
+    StaticLayout(std::shared_ptr<IParentProvider> parent,
+            int x, int y,
+            int width, int height);
 
-private:
+    //This doesn't work on StaticLayout because there isn't any positioning happening
+    void PositionWidgets();
+    void CalculateSize() override {};
+    void UpdateHierarchy();
 };

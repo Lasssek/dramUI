@@ -1,5 +1,4 @@
-#ifndef BUTTON_H
-#define BUTTON_H
+#pragma once
 
 #include "../Widget.hh"
 #include <string>
@@ -7,11 +6,12 @@
 
 class Button : public Widget {
 public:
-    Button(std::shared_ptr<ParentProvider> parent, 
+    Button(std::shared_ptr<IParentProvider> parent, 
         int width, int height,
-        std::string_view label,
+        std::wstring_view label,
         int x = 0, int y = 0,
-        bool centerText = false);
+        bool centerText = false
+    );
 
     void Draw(ConsoleBuffer& buffer);
     void HandleEvent(Event& event);
@@ -22,7 +22,7 @@ public:
     void SetHoveredColor();
     void SetAllColors();
 
-    void SetLabel(std::string_view label);
+    void SetLabel(std::wstring_view label);
     void SetTextCentering(bool center);
 
     void SetOnClick(std::function<void()>&& callback);
@@ -30,7 +30,7 @@ public:
     void SetOnHoverOut(std::function<void()>&& callback); 
 
 private:
-    std::string m_label;
+    std::wstring m_label;
     bool m_active  = false;
     bool m_hovered = false;
     bool m_centerText;
@@ -43,6 +43,3 @@ private:
     std::function<void()> m_onHoverIn;
     std::function<void()> m_onHoverOut;
 };
-
-
-#endif

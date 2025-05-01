@@ -26,19 +26,19 @@ ConsoleBuffer::ConsoleBuffer() {
     Clear();
 }
 
-void ConsoleBuffer::Clear(char c, WORD attr) {
+void ConsoleBuffer::Clear(wchar_t c, WORD attr) {
     for (int i = 0; i < m_size.X * m_size.Y; ++i) {
-        m_buffer[i].Char.AsciiChar = c;
+        m_buffer[i].Char.UnicodeChar = c;
         m_buffer[i].Attributes = attr;
     }
 }
 
-void ConsoleBuffer::Draw(int x, int y, char c, WORD attr) {
-    if (x >= 0 && x < m_size.X && 
-        y >= 0 && y < m_size.Y) {
-        m_buffer[y * m_size.X + x].Char.AsciiChar = c;
-        m_buffer[y * m_size.X + x].Attributes = attr;
-    }
+void ConsoleBuffer::Draw(int x, int y, wchar_t c, WORD attr) {
+    if (x < 0 || x >= m_size.X ||
+        y < 0 || y >= m_size.Y) return;
+
+    m_buffer[y * m_size.X + x].Char.UnicodeChar = c;
+    m_buffer[y * m_size.X + x].Attributes = attr;
 }
 
 Vector2D ConsoleBuffer::GetSize() {
@@ -47,7 +47,7 @@ Vector2D ConsoleBuffer::GetSize() {
 
 void ConsoleBuffer::Render() {
     SMALL_RECT rect = { 0, 0, m_size.X, m_size.Y };
-    WriteConsoleOutput(m_handle, m_buffer, m_size, {0, 0}, &rect);
+    WriteConsoleOutputW(m_handle, m_buffer, m_size, {0, 0}, &rect);
 }
 
 ConsoleBuffer::~ConsoleBuffer() { delete[] m_buffer; }

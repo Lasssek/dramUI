@@ -1,5 +1,4 @@
-#ifndef CONSOLE_BUFFER_H
-#define CONSOLE_BUFFER_H
+#pragma once
 
 #include <windows.h>
 #include <vector>
@@ -32,8 +31,8 @@ public:
 
     ConsoleBuffer(short width, short height);
     ConsoleBuffer();
-    void Clear(char c = ' ', WORD attr = 0x07);
-    void Draw(int x, int y, char c, WORD attr = 0x07);
+    void Clear(wchar_t c = ' ', WORD attr = 0x07);
+    void Draw(int x, int y, wchar_t c, WORD attr = 0x07);
     Vector2D GetSize();
     void Render();
     ~ConsoleBuffer();
@@ -46,5 +45,3 @@ private:
     COORD m_size;
     CHAR_INFO* m_buffer;
 };
-
-#endif

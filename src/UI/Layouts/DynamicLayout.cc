@@ -3,7 +3,7 @@
 
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 
-DynamicLayout::DynamicLayout(std::shared_ptr<ParentProvider> parent, 
+DynamicLayout::DynamicLayout(std::shared_ptr<IParentProvider> parent, 
     int x, int y,
     Size dynamicWidth, Size dynamicHeight,
     int gap, LayoutMode mode) : m_mode(mode) {
@@ -27,7 +27,7 @@ void DynamicLayout::UpdateHierarchy() {
     CalculateSize();
     PositionWidgets();
 
-    for (auto& widget : m_widgets) {
+    for (auto& [_, widget] : m_widgets) {
         if (auto dynWidget = std::dynamic_pointer_cast<DynamicLayout>(widget)) {
             dynWidget->UpdateHierarchy();
         }
@@ -35,7 +35,7 @@ void DynamicLayout::UpdateHierarchy() {
 }
 
 void DynamicLayout::CalculateSize() {
-    for (auto& widget : m_widgets) {
+    for (auto& [_, widget] : m_widgets) {
         if (auto childLayout = std::dynamic_pointer_cast<DynamicLayout>(widget)) {
             childLayout->CalculateSize();
         }
@@ -48,27 +48,27 @@ void DynamicLayout::CalculateSize() {
 
     if (m_mode == LayoutMode::Horizontal && m_dynamicHeight == Size::MatchContent) {
         m_height = 0;
-        for (auto& widget : m_widgets) {
+        for (auto& [_, widget] : m_widgets) {
             m_height = max(m_height, widget->GetHeight());
         }
     }
     if (m_mode == LayoutMode::Horizontal && m_dynamicWidth == Size::MatchContent) {
         m_width = 0;
-        for (auto& widget : m_widgets) {
+        for (auto& [_, widget] : m_widgets) {
             m_width += widget->GetWidth() + m_gap;
         }
     }
 
     if (m_mode == LayoutMode::Vertical && m_dynamicHeight == Size::MatchContent) {
         m_height = 0;
-        for (auto& widget : m_widgets) {
+        for (auto& [_, widget] : m_widgets) {
             m_height += widget->GetHeight() + m_gap;
         }
     }
 
     if (m_mode == LayoutMode::Vertical && m_dynamicWidth == Size::MatchContent) {
         m_width = 0;
-        for (auto& widget : m_widgets) {
+        for (auto& [_, widget] : m_widgets) {
             m_width = max(m_width, widget->GetWidth());
         }
     }
@@ -98,11 +98,12 @@ void DynamicLayout::PositionWidgets() {
         int contentWidth = 0;
         int totalHeight = 0;
     
-        for (auto& widget : m_widgets) {
+        for (auto it = m_widgets.begin(); it != m_widgets.end(); ++it) {
+            auto& widget = it->second;
             totalHeight += widget->GetHeight();
     
             contentWidth = max(contentWidth, widget->GetWidth());
-            if (&widget != &m_widgets.back()) {
+            if (std::next(it) != m_widgets.end()) {
                 totalHeight += m_gap;
             }
         }
@@ -110,7 +111,7 @@ void DynamicLayout::PositionWidgets() {
         int startY = CalculateVerticalStart(totalHeight);
         int currentY = startY;
 
-        for (auto& widget : m_widgets) {
+        for (auto& [_, widget] : m_widgets) {
             int widgetX = CalculateHorizontalStart(widget->GetWidth());
 
             widget->SetPosition(widgetX, currentY);
@@ -120,11 +121,12 @@ void DynamicLayout::PositionWidgets() {
         int totalWidth = 0;
         int contentHeight = 0;
         
-        for (auto& widget : m_widgets) {
+        for (auto it = m_widgets.begin(); it != m_widgets.end(); ++it) {
+            auto& widget = it->second;
             totalWidth += widget->GetWidth();
             contentHeight = max(contentHeight, widget->GetHeight());
             
-            if (&widget != &m_widgets.back()) {
+            if (std::next(it) != m_widgets.end()) {
                 totalWidth += m_gap;
             }
         }
@@ -132,7 +134,7 @@ void DynamicLayout::PositionWidgets() {
         int startX = CalculateHorizontalStart(totalWidth);
         int currentX = startX;
 
-        for (auto& widget : m_widgets) {
+        for (auto& [_, widget] : m_widgets) {
             int widgetY = CalculateVerticalStart(widget->GetHeight());
 
             widget->SetPosition(currentX, widgetY);
@@ -140,7 +142,7 @@ void DynamicLayout::PositionWidgets() {
         }
     }
 
-    for (auto& widget : m_widgets) {
+    for (auto& [_, widget] : m_widgets) {
         if (std::shared_ptr<DynamicLayout> dynWidget = dynamic_pointer_cast<DynamicLayout>(widget)) {
             dynWidget->CalculateSize();
             dynWidget->PositionWidgets();

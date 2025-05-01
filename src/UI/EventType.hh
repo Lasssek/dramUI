@@ -1,5 +1,4 @@
-#ifndef EVENT_TYPE_H
-#define EVENT_TYPE_H
+#pragma once
 
 #include <windows.h>
 
@@ -32,5 +31,3 @@ struct Event {
         KeyEvent keyboard;
     };
 };
-
-#endif

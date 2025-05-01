@@ -1,9 +1,8 @@
-#ifndef WINDOW_H
-#define WINDOW_H
+#pragma once
 
 #include <memory>
 #include "Layout.hh"
-#include "Scene/Scene.hh"
+#include "./Scene/Scene.hh"
 
 class Window {
 public:
@@ -11,7 +10,7 @@ public:
     Window& operator=(const Window&) = delete;
 
     static void Initialize();
-    static void Initialize(short width, short height);
+    static void Initialize(int width, int height);
 
     static Window* GetInstance();
 
@@ -22,7 +21,7 @@ public:
     void ProcessInput();
     void Render();
 private:
-    Window(short width, short height);
+    Window(int width, int height);
     Window();
 
     void HandleInputEvent(Event& event);
@@ -31,7 +30,6 @@ private:
     static std::unique_ptr<Window> m_instance;
     ConsoleBuffer m_buffer;
 
-    short m_width;
-    short m_height;
+    int m_width;
+    int m_height;
 };
-#endif
